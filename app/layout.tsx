@@ -30,7 +30,7 @@ export default function RootLayout({
       baseTheme: dark
     }}>
       <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-        <body className="antialiased bg-purple-gradient bg-white  text-white ">
+        <body className="antialiased bg-purple-gradient bg-white  text-white  ">
           {/* Entire page is flex-col layout */}
           <div className='w-full h-full bg-zinc-900 '>
           <div className="flex flex-col h-screen">
