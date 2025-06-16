@@ -105,9 +105,16 @@ export const debounce = <T extends (...args: unknown[]) => void>(
 // --- Image Utilities ---
 export type AspectRatioKey = keyof typeof aspectRatioOptions;
 
+interface ImageDimensions {
+  aspectRatio?: AspectRatioKey;
+  width?: number;
+  height?: number;
+  [key: string]: unknown;
+}
+
 export const getImageSize = (
   type: string,
-  image: Record<string, any>,
+  image: ImageDimensions,
   dimension: "width" | "height"
 ): number => {
   if (type === "fill") {

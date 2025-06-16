@@ -1,9 +1,9 @@
 import mongoose from 'mongoose'
 
-const MONGODB_URI = process.env.MONGODB_URI!
+const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable')
+  throw new Error("Please define the MONGODB_URI environment variable");
 }
 
 // Define the cache type
@@ -28,7 +28,7 @@ async function dbConnect(): Promise<typeof mongoose> {
   if (cached.conn) return cached.conn
 
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGODB_URI, {
+    cached.promise = mongoose.connect(MONGODB_URI as string, {
       dbName: 'imagify',
       bufferCommands: false,
     })
