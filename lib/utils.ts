@@ -1,33 +1,29 @@
 /* eslint-disable prefer-const */
-/* eslint-disable no-prototype-builtins */
 import { type ClassValue, clsx } from "clsx";
 import qs from "qs";
 import { twMerge } from "tailwind-merge";
-
 import { aspectRatioOptions } from "@/constants";
 
+// Utility function to merge Tailwind classes
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// ERROR HANDLER
-export const handleError = (error: unknown) => {
+// Error handler
+export const handleError = (error: unknown): never => {
   if (error instanceof Error) {
-    // This is a native JavaScript error (e.g., TypeError, RangeError)
     console.error(error.message);
     throw new Error(`Error: ${error.message}`);
   } else if (typeof error === "string") {
-    // This is a string error message
     console.error(error);
     throw new Error(`Error: ${error}`);
   } else {
-    // This is an unknown type of error
     console.error(error);
     throw new Error(`Unknown error: ${JSON.stringify(error)}`);
   }
 };
 
-// PLACEHOLDER LOADER - while image is transforming
+// Placeholder shimmer loader
 const shimmer = (w: number, h: number) => `
 <svg width="${w}" height="${h}" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   <defs>
@@ -50,22 +46,33 @@ const toBase64 = (str: string) =>
 export const dataUrl = `data:image/svg+xml;base64,${toBase64(
   shimmer(1000, 1000)
 )}`;
-// ==== End
 
-// FORM URL QUERY
+// --- Types ---
+type FormUrlQueryParams = {
+  searchParams: URLSearchParams;
+  key: string;
+  value: string;
+};
+
+type RemoveUrlQueryParams = {
+  searchParams: string;
+  keysToRemove: string[];
+};
+
+type AnyObject = Record<string, unknown>;
+
+// --- URL utils ---
 export const formUrlQuery = ({
   searchParams,
   key,
   value,
 }: FormUrlQueryParams) => {
   const params = { ...qs.parse(searchParams.toString()), [key]: value };
-
   return `${window.location.pathname}?${qs.stringify(params, {
     skipNulls: true,
   })}`;
 };
 
-// REMOVE KEY FROM QUERY
 export function removeKeysFromQuery({
   searchParams,
   keysToRemove,
@@ -76,7 +83,6 @@ export function removeKeysFromQuery({
     delete currentUrl[key];
   });
 
-  // Remove null or undefined values
   Object.keys(currentUrl).forEach(
     (key) => currentUrl[key] == null && delete currentUrl[key]
   );
@@ -84,32 +90,36 @@ export function removeKeysFromQuery({
   return `${window.location.pathname}?${qs.stringify(currentUrl)}`;
 }
 
-// DEBOUNCE
-export const debounce = (func: (...args: any[]) => void, delay: number) => {
+// --- Debounce ---
+export const debounce = <T extends (...args: unknown[]) => void>(
+  func: T,
+  delay: number
+) => {
   let timeoutId: NodeJS.Timeout | null;
-  return (...args: any[]) => {
+  return (...args: Parameters<T>) => {
     if (timeoutId) clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => func.apply(null, args), delay);
+    timeoutId = setTimeout(() => func(...args), delay);
   };
 };
 
-// GE IMAGE SIZE
+// --- Image Utilities ---
 export type AspectRatioKey = keyof typeof aspectRatioOptions;
+
 export const getImageSize = (
   type: string,
-  image: any,
+  image: Record<string, any>,
   dimension: "width" | "height"
 ): number => {
   if (type === "fill") {
     return (
-      aspectRatioOptions[image.aspectRatio as AspectRatioKey]?.[dimension] ||
+      aspectRatioOptions[image.aspectRatio as AspectRatioKey]?.[dimension] ??
       1000
     );
   }
   return image?.[dimension] || 1000;
 };
 
-// DOWNLOAD IMAGE
+// --- Image Downloader ---
 export const download = (url: string, filename: string) => {
   if (!url) {
     throw new Error("Resource URL not provided! You need to provide one");
@@ -122,31 +132,35 @@ export const download = (url: string, filename: string) => {
       const a = document.createElement("a");
       a.href = blobURL;
 
-      if (filename && filename.length)
-        a.download = `${filename.replace(" ", "_")}.png`;
+      if (filename?.length) a.download = `${filename.replace(" ", "_")}.png`;
+
       document.body.appendChild(a);
       a.click();
     })
     .catch((error) => console.log({ error }));
 };
 
-// DEEP MERGE OBJECTS
-export const deepMergeObjects = (obj1: any, obj2: any) => {
-  if (obj2 === null || obj2 === undefined) {
-    return obj1;
-  }
+// --- Deep Merge ---
+export const deepMergeObjects = (
+  obj1: AnyObject,
+  obj2: AnyObject
+): AnyObject => {
+  if (obj2 == null) return obj1;
 
-  let output = { ...obj2 };
+  const output: AnyObject = { ...obj2 };
 
   for (let key in obj1) {
-    if (obj1.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(obj1, key)) {
       if (
         obj1[key] &&
         typeof obj1[key] === "object" &&
         obj2[key] &&
         typeof obj2[key] === "object"
       ) {
-        output[key] = deepMergeObjects(obj1[key], obj2[key]);
+        output[key] = deepMergeObjects(
+          obj1[key] as AnyObject,
+          obj2[key] as AnyObject
+        );
       } else {
         output[key] = obj1[key];
       }

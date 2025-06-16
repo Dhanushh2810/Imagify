@@ -1,18 +1,14 @@
-import { type Metadata } from 'next'
-import { dark,neobrutalism  } from '@clerk/themes'
+
+import { dark  } from '@clerk/themes'
 import {
   ClerkProvider,
-  SignInButton,
-  SignUpButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
+  
 } from '@clerk/nextjs'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/Header'
-import { Sidebar } from 'lucide-react'
-import Sideb from '@/components/Sideb'
+
+
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin'],

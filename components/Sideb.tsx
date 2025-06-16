@@ -1,18 +1,15 @@
 "use client"
-import { Sidebar, SidebarClose, SidebarOpen } from "lucide-react"
+import {  SidebarClose, SidebarOpen } from "lucide-react"
 import {
-  Calendar,
+  
   Home,
-  Inbox,
-  Search,
-  Settings,
+
   Image,
   Sparkle,
   ScanSearch,
   Rainbow,
   Camera,
-  ChevronLeft,
-  ChevronRight,
+
   User,
   DoorClosedLocked,
 } from "lucide-react"

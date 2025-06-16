@@ -1,4 +1,3 @@
-// lib/mongodb.ts
 import mongoose from 'mongoose'
 
 const MONGODB_URI = process.env.MONGODB_URI!
@@ -7,19 +6,30 @@ if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable')
 }
 
-// Global cache to prevent re-connecting on every request (especially in development)
-let cached = (global as any).mongoose
-
-if (!cached) {
-  cached = (global as any).mongoose = { conn: null, promise: null }
+// Define the cache type
+interface MongooseCache {
+  conn: typeof mongoose | null
+  promise: Promise<typeof mongoose> | null
 }
 
-async function dbConnect() {
+// Attach to the global object to persist across hot reloads
+declare global {
+  // Allow global mongoose cache in Node.js
+  var mongooseCache: MongooseCache | undefined
+}
+
+let cached: MongooseCache = global.mongooseCache || { conn: null, promise: null }
+
+if (!global.mongooseCache) {
+  global.mongooseCache = cached
+}
+
+async function dbConnect(): Promise<typeof mongoose> {
   if (cached.conn) return cached.conn
 
   if (!cached.promise) {
     cached.promise = mongoose.connect(MONGODB_URI, {
-        dbName:'imagify',
+      dbName: 'imagify',
       bufferCommands: false,
     })
   }
